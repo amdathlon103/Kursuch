@@ -1,14 +1,4 @@
-//Last Edit: 9/27/13 5:16 PM
-
-/*
-	Checkers
-	Created by Aaron Singh
-	
-	Input comes through getSquare(), getTarget(), getConsecutiveJmpTarget(), and playAgain().
-	
-	My method of detecting capture is described below and dependent on vector addresses.
-
-	Chart of vector addresses:
+/*	Chart of vector addresses:
 	
 	       | 28|   | 29|   | 30|   | 31
 	8   ___|___|___|___|___|___|___|___
@@ -28,7 +18,7 @@
 	1   ___|___|___|___|___|___|___|___
 	     a   b   c   d   e   f   g   h
 
-	See either function void prepareGame() or void defaultBoard(vector<sq::Square> &sqVect) for the coding of these vector addresses.
+	See either function void checkers::prepare_game() or void checkers::display_board() for the coding of these vector addresses.
 
 	How capture is detected:
 	There are eight kinds of relationships that indicate a capture (four for red, four for black).
@@ -146,94 +136,4 @@
 					f  g  h
 				-The vector address of f4 is 14, of g3 is 11, and of h2 is 7.
 				-From f4 to g3, the drop in address is 3 (14 to 11).
-				-From g3 to h2, the drop in address is 4 (11 to 7).
-
-		How do I use the above information to detect a capture?
-		-First, determine the turn (either red or black).
-		-Second, determine the oddness or evenness of the row of the initial square.
-		-Third, determine the direction of movement (done by comparing the columns of the initial and landing squares).
-		
-		-After collecting all this information, there is one possible capture pattern which may or may not be met.
-		-For example, if the turn is red, the row is even, and the direction is left, then the program checks if
-		 red's 4th capture condition is satisfied. See function bool isCapture() for the codification.
-
-		Why did I select this method of detecting capture?
-		-My other option was to use many messy, bunched-up if-statements.
-		-For example, on black's 4th capture condition's example, I would have pseudo-coded:
-			//if selected square is f4
-				//if target square is h2 and empty
-					//if middle square is g3 and occupied by red
-						//do capture
-		**I would have 32 of these for each of the 32 accessible squares.
-		**8 different capture conditions means 32*8=256 sets of the above if-statements.
-
-		-With the method I chose, for black's 4th capture condition's example, I instead pseudo-code:
-			//if the difference between the vector addresses of the selected and middle squares is 3
-				//if the difference between the vector addresses of the middle and targeted squares is 4
-					//if middle square is occupied by red
-						//do capture
-		**I would have only 1 of these to handle all 32 squares.
-		**8 different capture conditions means 1*8=8 sets of the above if-statements.
-
-*/
-
-#include <SFML/Graphics.hpp>
-#include <iostream>
-#include "CheckersBoard.h"
-#include "checkersFunctions.h"
-#include "checkersVariables.h"
-
-// Constructs window and the checkers board. Creates a thread for 
-// checkersGame(). Handles exceptions.
-int main()
-try {
-  sf::RenderWindow gameWindow(sf::VideoMode(1000, 650), 
-                              "Checkers", sf::Style::Close);
-
-  // The one and only checkers board to display.
-  checkers::gameBoard = ch::Board(600.0f);
-  //gameBoard.setBorderThickness(5.0f);
-  gameBoard.setPosition(sf::Vector2f(20.0f, 20.0f));
-  //gameBoard.setBorderColor(sf::Color::Red);
-  gameBoard.setWindow(gameWindow);
-  checkersGame();
-
-	return 0;
-}
-catch(std::string message) {
-	std::cerr << message <<'\n';
-	exit();
-	return 1;
-}
-catch (...) {
-	std::cerr << "Unknown exception\n";
-	exit();
-	return 2;
-}
-
-/*
-#include <SFML/Graphics.hpp>
-
-int main()
-{
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
-
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        window.clear();
-        window.draw(shape);
-        window.display();
-    }
-
-    return 0;
-}
-*/
+				-From g3 to h2, the drop in address is 4 (11 to 7).*/

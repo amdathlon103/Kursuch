@@ -18,6 +18,31 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Button.h" />
+    <ClInclude Include="CheckersBoard.h" />
+    <ClInclude Include="checkersFunctions.h" />
+    <ClInclude Include="CheckersPiece.h" />
+    <ClInclude Include="CheckersSquare.h" />
+    <ClInclude Include="checkersVariables.h" />
+    <ClInclude Include="constants.h" />
+    <ClInclude Include="error.h" />
+    <ClInclude Include="filler.h" />
+    <ClInclude Include="gameBoard.h" />
+    <ClInclude Include="square.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Button.cpp" />
+    <ClCompile Include="CheckersBoard.cpp" />
+    <ClCompile Include="checkersFunctions.cpp" />
+    <ClCompile Include="CheckersPiece.cpp" />
+    <ClCompile Include="CheckersSquare.cpp" />
+    <ClCompile Include="checkersVariables.cpp" />
+    <ClCompile Include="error.cpp" />
+    <ClCompile Include="gameBoard.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="square.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{2872EA74-81BB-496A-8D1F-4BEC0CB9B9C1}</ProjectGuid>
@@ -121,9 +146,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Main.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
