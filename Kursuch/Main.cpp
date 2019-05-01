@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <time.h>
+#include <iostream>
 using namespace sf;
 
 int size = 56;
@@ -9,14 +10,14 @@ Sprite f[32]; //figures
 std::string position = "";
 
 int board[8][8] =
-{ -1,-2,-3,-4,-5,-3,-2,-1,
- -6,-6,-6,-6,-6,-6,-6,-6,
+{ 0,-1, 0,-2, 0,-3, 0,-4,
+ -6, 0,-6, 0,-6, 0,-6, 0,
+  0,-6, 0,-6, 0,-6, 0,-5,
   0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  6, 6, 6, 6, 6, 6, 6, 6,
-  1, 2, 3, 4, 5, 3, 2, 1 };
+  6, 0, 6, 0, 6, 0, 6, 0,
+  0, 6, 0, 6, 0, 6, 0, 5,
+  1, 0, 2, 0, 3, 0, 4, 0 };
 
 std::string toChessNote(Vector2f p)
 {
@@ -44,11 +45,11 @@ void move(std::string str)
 	for (int i = 0; i < 32; i++)
 		if (f[i].getPosition() == oldPos) f[i].setPosition(newPos);
 
-	//castling       //if the king didn't move
+/*	//castling       //if the king didn't move
 	if (str == "e1g1") if (position.find("e1") == -1) move("h1f1");
 	if (str == "e8g8") if (position.find("e8") == -1) move("h8f8");
 	if (str == "e1c1") if (position.find("e1") == -1) move("a1d1");
-	if (str == "e8c8") if (position.find("e8") == -1) move("a8d8");
+	if (str == "e8c8") if (position.find("e8") == -1) move("a8d8");*/
 }
 
 void loadPosition()
@@ -127,6 +128,7 @@ int main()
 					Vector2f p = f[n].getPosition() + Vector2f(size / 2, size / 2);
 					newPos = Vector2f(size*int(p.x / size), size*int(p.y / size));
 					str = toChessNote(oldPos) + toChessNote(newPos);
+					std::cout << str;
 					move(str);
 					if (oldPos != newPos) position += str + " ";
 					f[n].setPosition(newPos);
