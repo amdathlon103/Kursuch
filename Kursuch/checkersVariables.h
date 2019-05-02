@@ -12,6 +12,11 @@ namespace checkers
 {
 	extern std::vector<sq::Square> squares;
 	extern std::string selection; //all input by the user is held by this variable
+	extern sf::Text curTurn;
+	extern sf::Font font;
+	extern sf::Text locked;
+	extern sf::Text winMsg;
+	extern sf::Text egMsg;
 	extern char turn; //either 'r' (Red) or 'b' (Black)
 	extern char captureDirection; //either 'R' (right) or 'L' (left)
 	extern char initialRowParity; //either 'O' (odd) or 'E' (even)

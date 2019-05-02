@@ -1,13 +1,10 @@
 
 #include "checkersFunctions.h"
 
-sf::Text curTurn;
-//curTurn.setString("current turn: Red"); TODO:FIX;
-//gameBoard.getWindow()->draw(curTurn);
-//gameBoard.getWindow()->display();
-sf::Font font;
+
 
 void prepareGame() {
+	gameBoard.getWindow()->clear();
 	//prepare variables:
 	selection = " ";
 	turn = Red;
@@ -18,9 +15,10 @@ void prepareGame() {
 	selected = 0;
 	targeted = 0;
 	inBetween = 0;
-	font.loadFromFile("images/Arial.ttf");
-	curTurn.setPosition(650.0f, 400.0f);
-	curTurn.setFont(font);
+	font.loadFromFile("Resources/Arial.ttf");
+	locked.setPosition(650.0f, 440.0f);
+	locked.setFont(font);
+	//winMsg.setString("Red won!");
 
 	//prepare squares and pieces:
 	squares[0] = sq::Square(Red,"a1",'1'); squares[1] = sq::Square(Red,"c1",'1'); 
@@ -52,9 +50,23 @@ std::string get_GUI_Input() {
   }
 
   sf::Texture help_guide;
-  help_guide.loadFromFile("images/help.png");
+  help_guide.loadFromFile("Resources/help.png");
   sf::Sprite help(help_guide);
   help.setPosition(sf::Vector2f(650.0f, 100.0f));
+  curTurn.setPosition(650.0f, 400.0f);
+  curTurn.setFont(font);
+  winMsg.setPosition(180.0f, 250.0f);
+  winMsg.setCharacterSize(60);
+  winMsg.setFillColor(sf::Color::Black);
+  winMsg.setOutlineColor(sf::Color::White);
+  winMsg.setOutlineThickness(5);
+  winMsg.setFont(font);
+  egMsg.setPosition(180.0f, 315.0f);
+  egMsg.setCharacterSize(40);
+  egMsg.setFillColor(sf::Color::Black);
+  egMsg.setOutlineColor(sf::Color::White);
+  egMsg.setOutlineThickness(2);
+  egMsg.setFont(font);
   while (gameBoard.getWindow()->isOpen()) {
     sf::Event what;
 
@@ -81,6 +93,9 @@ std::string get_GUI_Input() {
           case sf::Keyboard::S:
             // to skip the option to do a consecutive jump
             return "s";
+		  case sf::Keyboard::N:
+			  //new game
+			  return "n";
         }
       default:
         break;
@@ -89,8 +104,11 @@ std::string get_GUI_Input() {
 
     gameBoard.getWindow()->clear();
     gameBoard.draw(*gameBoard.getWindow(), checkers::squares);
-	//gameBoard.getWindow()->draw(curTurn);
+	gameBoard.getWindow()->draw(curTurn);
+	gameBoard.getWindow()->draw(locked);
     gameBoard.getWindow()->draw(help);
+	gameBoard.getWindow()->draw(winMsg);
+	gameBoard.getWindow()->draw(egMsg);
     gameBoard.getWindow()->display();
   }
 
@@ -199,9 +217,11 @@ bool possibleMovement(sq::Square *initSq) {
 }
 
 void getSquare() {
+
 	std::cout << "Current turn: "<<turn<<"\n";
 	std::cout << "Enter coordinate of piece you want to move (ex. a1, f8):\n";
 	//std::cin >> selection;
+
   selection = get_GUI_Input();
   std::cout << selection << std::endl;
   
@@ -233,6 +253,7 @@ bool goodSquare(std::string sq) {
 }
 
 void getTarget() {
+	locked.setString("LOCKED!");
 	if(selection == "q" || selection == "quit") return;
 	std::cout<<"Enter coordinate of target square (ex. a1, f8):\n";
 	//std::cin >> selection;
@@ -243,6 +264,7 @@ void getTarget() {
 		{ displayBoard(squares,2); getTarget(); }
 	if(selection == "r" || selection == "reset")	//reset option in case no possible target
 	{	
+		locked.setString("");
 		displayBoard(squares,2); getSquare(); 
 		if(selection == "q" || selection == "quit") return; getTarget(); 
 	}
@@ -932,8 +954,10 @@ void displayHelp() {
 }
 
 void redTurn() {
+	curTurn.setString("current turn: Red");
 	displayBoard(squares,2);
 	getSquare();
+	locked.setString("LOCKED!"); //MARK
 	if(selection == "q" || selection == "quit") return;
 	getTarget();
 	if(selection == "q" || selection == "quit") return;
@@ -944,15 +968,20 @@ void redTurn() {
 		displayBoard(squares,2);
 		getConsecutiveJmpTarget();
 		if(selection == "q" || selection == "quit") return;
-		if(selection == "s" || selection == "skip") return; //do this before updateBoard()
+		if (selection == "s" || selection == "skip") {
+			locked.setString(""); return;
+		}													 //do this before updateBoard()
 															//otherwise updateBoard removes squares[selected]
 		updateBoard();
 	}
+	locked.setString("");
 }
 
 void blackTurn() {
+	curTurn.setString("current turn: Black");
 	displayBoard(squares,2);
 	getSquare();
+	locked.setString("LOCKED!"); //MARK
 	if(selection == "q" || selection == "quit") return;
 	getTarget();
 	if(selection == "q" || selection == "quit") return;
@@ -963,10 +992,13 @@ void blackTurn() {
 		displayBoard(squares,2);
 		getConsecutiveJmpTarget();
 		if(selection == "q" || selection == "quit") return;
-		if(selection == "s" || selection == "skip") return; //do this before updateBoard()
+		if(selection == "s" || selection == "skip") {
+			locked.setString(""); return;
+		}													 //do this before updateBoard()
 															//otherwise updateBoard removes squares[selected]
 		updateBoard();
 	}
+	locked.setString("");
 }
 
 bool gameOver() {
@@ -1032,18 +1064,21 @@ void handleLoss() {
 
 void redLoses() {
 	//tells the user that red has lost
+	winMsg.setString("Black won!");
 	displayBoard(squares,2);
 	std::cout << "Game over! Red loses. Black wins.\n";
 }
 
 void blackLoses() {
 	//tells the user that black has lost
+	winMsg.setString("Red won!");
 	displayBoard(squares,2);
 	std::cout << "Game over! Black loses. Red wins.\n";
 }
 
 void tieGame() {
 	//tells the user that the game is a draw
+	winMsg.setString("Game tied!");
 	displayBoard(squares,2);
 	std::cout << "Game over! The game is a draw.\n";
 	if(turn == Red) std::cout << "Red cannot make a move.\n";
@@ -1053,9 +1088,12 @@ void tieGame() {
 bool playAgain() {
 	//does the user want another game?
 	std::cout << "\nWould you like to play another game?\n";
-	while(selection != "yes" && selection != "y" && selection != "no" && selection != "n") 
-		{ std::cout << "Type 'y' or 'n':\n"; std::cin >> selection; }
-	if(selection == "yes" || selection == "y") return true;
+	egMsg.setString("Press 'N' for new game.\nPress any key to exit.");
+	selection = get_GUI_Input();
+	std::cout << selection << '\n';
+	/*while(selection != "yes" && selection != "y" && selection != "no" && selection != "n") 
+		{ std::cout << "Type 'y' or 'n':\n"; std::cin >> selection; }*/
+	if(selection == "yes" || selection == "n") return true;
 	return false;
 }
 

@@ -10,7 +10,11 @@ bool checkers::wasCapture = false; //was there a capture this turn?
 				 //used to determine whether to check for consecutive capture
 char checkers::loser = ' '; //either 'r' (Red) or 'b' (Black)
 		   //who is the loser?
-       
+sf::Text checkers::curTurn;
+sf::Font checkers::font;
+sf::Text checkers::locked;
+sf::Text checkers::winMsg;
+sf::Text checkers::egMsg;
 //for vector location:
 int checkers::selected = 0; //holds vector address of square of selected piece
 int checkers::targeted = 0; //holds vector address of square to move a piece to

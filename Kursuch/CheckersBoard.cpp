@@ -31,7 +31,7 @@ void Board::draw(sf::RenderWindow &renderWindow,
  // renderWindow.draw(board);
 	//drawSquares(renderWindow);
 	sf::Texture bord;
-	bord.loadFromFile("images/board0.png");
+	bord.loadFromFile("Resources/board0.png");
 	sf::Sprite gBoard(bord);
 	gBoard.setPosition(sf::Vector2f(15.5f, 14.0f));
 	gBoard.setScale(1.34, 1.34);
