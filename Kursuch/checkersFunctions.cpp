@@ -1,6 +1,12 @@
 
 #include "checkersFunctions.h"
 
+sf::Text curTurn;
+//curTurn.setString("current turn: Red"); TODO:FIX;
+//gameBoard.getWindow()->draw(curTurn);
+//gameBoard.getWindow()->display();
+sf::Font font;
+
 void prepareGame() {
 	//prepare variables:
 	selection = " ";
@@ -12,6 +18,9 @@ void prepareGame() {
 	selected = 0;
 	targeted = 0;
 	inBetween = 0;
+	font.loadFromFile("images/Arial.ttf");
+	curTurn.setPosition(650.0f, 400.0f);
+	curTurn.setFont(font);
 
 	//prepare squares and pieces:
 	squares[0] = sq::Square(Red,"a1",'1'); squares[1] = sq::Square(Red,"c1",'1'); 
@@ -45,7 +54,7 @@ std::string get_GUI_Input() {
   sf::Texture help_guide;
   help_guide.loadFromFile("images/help.png");
   sf::Sprite help(help_guide);
-  help.setPosition(sf::Vector2f(650.0f, 200.0f));
+  help.setPosition(sf::Vector2f(650.0f, 100.0f));
   while (gameBoard.getWindow()->isOpen()) {
     sf::Event what;
 
@@ -80,6 +89,7 @@ std::string get_GUI_Input() {
 
     gameBoard.getWindow()->clear();
     gameBoard.draw(*gameBoard.getWindow(), checkers::squares);
+	//gameBoard.getWindow()->draw(curTurn);
     gameBoard.getWindow()->draw(help);
     gameBoard.getWindow()->display();
   }
@@ -999,6 +1009,8 @@ void checkersGame() {
 		}
 		else if(turn == Black)
 		{
+			//curTurn.setString("current turn: Black");
+			//curTurn.setFont(font);
 			blackTurn();
 			if(selection == "q" || selection == "quit") quit = true;
 			turn = oppoColor(turn);
@@ -1008,8 +1020,8 @@ void checkersGame() {
 	if(gameOver() && !quit)
 	{
 		handleLoss();
+		if (playAgain()) checkersGame();
 	}
-	//if(playAgain()) checkersGame();
 }
 
 void handleLoss() {
