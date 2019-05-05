@@ -18,6 +18,8 @@ void prepareGame() {
 	font.loadFromFile("Resources/Arial.ttf");
 	locked.setPosition(650.0f, 440.0f);
 	locked.setFont(font);
+	winMsg.setString("");
+	egMsg.setString("");
 	//winMsg.setString("Red won!");
 
 	//prepare squares and pieces:
@@ -66,7 +68,7 @@ std::string get_GUI_Input() {
   egMsg.setFillColor(sf::Color::Black);
   egMsg.setOutlineColor(sf::Color::White);
   egMsg.setOutlineThickness(2);
-  egMsg.setFont(font);
+  egMsg.setFont(font);  
   while (gameBoard.getWindow()->isOpen()) {
     sf::Event what;
 
@@ -954,7 +956,7 @@ void displayHelp() {
 }
 
 void redTurn() {
-	curTurn.setString("current turn: Red");
+	curTurn.setString("current turn: White");
 	displayBoard(squares,2);
 	getSquare();
 	locked.setString("LOCKED!"); //MARK
@@ -1065,13 +1067,15 @@ void handleLoss() {
 void redLoses() {
 	//tells the user that red has lost
 	winMsg.setString("Black won!");
+	gameBoard.getWindow()->draw(winMsg);
 	displayBoard(squares,2);
 	std::cout << "Game over! Red loses. Black wins.\n";
 }
 
 void blackLoses() {
 	//tells the user that black has lost
-	winMsg.setString("Red won!");
+	winMsg.setString("White won!");
+	gameBoard.getWindow()->draw(winMsg);
 	displayBoard(squares,2);
 	std::cout << "Game over! Black loses. Red wins.\n";
 }
@@ -1079,6 +1083,7 @@ void blackLoses() {
 void tieGame() {
 	//tells the user that the game is a draw
 	winMsg.setString("Game tied!");
+	gameBoard.getWindow()->draw(winMsg);
 	displayBoard(squares,2);
 	std::cout << "Game over! The game is a draw.\n";
 	if(turn == Red) std::cout << "Red cannot make a move.\n";
@@ -1089,6 +1094,8 @@ bool playAgain() {
 	//does the user want another game?
 	std::cout << "\nWould you like to play another game?\n";
 	egMsg.setString("Press 'N' for new game.\nPress any key to exit.");
+	gameBoard.getWindow()->draw(egMsg);
+	gameBoard.getWindow()->display();
 	selection = get_GUI_Input();
 	std::cout << selection << '\n';
 	/*while(selection != "yes" && selection != "y" && selection != "no" && selection != "n") 

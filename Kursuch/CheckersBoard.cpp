@@ -127,21 +127,21 @@ void Board::drawPieces(sf::RenderWindow &window,
   for (unsigned i = 0; i < updates.size(); ++i) {
     switch (updates[i].color()) {
     case Red:
-      piece_to_draw.setColor(sf::Color::Red);
+      piece_to_draw.setColor(sf::Color::White);
       piece_to_draw.setPosition(squaresVect[i].getCoordinatesToPlacePiece(piece_to_draw));
-      piece_to_draw.setOutlineColor(sf::Color::White);
+      piece_to_draw.setOutlineColor(sf::Color(102, 51, 0, 255));
       piece_to_draw.draw(window);
       break;
     case Black:
       piece_to_draw.setColor(sf::Color::Black);
       piece_to_draw.setPosition(squaresVect[i].getCoordinatesToPlacePiece(piece_to_draw));
-      piece_to_draw.setOutlineColor(sf::Color::White);
+      piece_to_draw.setOutlineColor(sf::Color(102, 51, 0, 255));
       piece_to_draw.draw(window);
       break;
     case cRed:
-      piece_to_draw.setColor(sf::Color::Red);
+      piece_to_draw.setColor(sf::Color::White);
       piece_to_draw.setPosition(squaresVect[i].getCoordinatesToPlacePiece(piece_to_draw));
-      piece_to_draw.setOutlineColor(sf::Color::Black);
+      piece_to_draw.setOutlineColor(sf::Color::White);
       piece_to_draw.draw(window);
       break;
     case cBlack:

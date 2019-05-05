@@ -9,7 +9,7 @@ Piece::Piece(const float &radius,
 {
   circle.setFillColor(color);
   circle.setOutlineThickness(outlineThickness);
-  circle.setOutlineColor(sf::Color::White);
+  //circle.setOutlineColor(sf::Color(153, 102, 51, 0));
 }
 
 
