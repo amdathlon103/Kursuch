@@ -1,7 +1,6 @@
 #include "gameBoard.h"
 
 void displayBoard(const std::vector<sq::Square> &sqVect, int widthInUnderscores) {
-	//decides which board to display depending on desired width
 	if (widthInUnderscores == 1) compactBoard(sqVect);
 	if (widthInUnderscores == 2) defaultBoard(sqVect);
 	return;
@@ -31,7 +30,6 @@ void compactBoard(const std::vector<sq::Square> &sqVect) {
 }
 
 void defaultBoard(const std::vector<sq::Square> &sqVect) {
-//void wideBoard() {
 	std::cout<<'\n'
 	<<"     | "<<sqVect[28].color()<<" |   | "<<sqVect[29].color()<<" |   | "<<sqVect[30].color()<<" |   | "<<sqVect[31].color()<<'\n'
 	<<"8 ___|___|___|___|___|___|___|___\n"

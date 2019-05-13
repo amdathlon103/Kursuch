@@ -5,7 +5,7 @@
 
 void prepareGame() {
 	gameBoard.getWindow()->clear();
-	//prepare variables:
+	//подготовить переменные:
 	selection = " ";
 	turn = Red;
 	captureDirection = ' ';
@@ -15,14 +15,28 @@ void prepareGame() {
 	selected = 0;
 	targeted = 0;
 	inBetween = 0;
+	wEaten = 0;
+	bEaten = 0;
 	font.loadFromFile("Resources/Arial.ttf");
 	locked.setPosition(650.0f, 440.0f);
 	locked.setFont(font);
 	winMsg.setString("");
 	egMsg.setString("");
-	//winMsg.setString("Red won!");
+	wEat.setString("");
+	bEat.setString("");
+	wPie.setRadius(30.0f);
+	wPie.setOutlineThickness(5.0f);
+	wPie.setPosition(740.0f, 30.0f);
+	wPie.setFillColor(sf::Color::White);
+	wPie.setOutlineColor(sf::Color(102, 51, 0, 255));
+	bPie.setRadius(30.0f);
+	bPie.setOutlineThickness(5.0f);
+	bPie.setPosition(740.0f, 550.0f);
+	bPie.setFillColor(sf::Color::Black);
+	bPie.setOutlineColor(sf::Color(102, 51, 0, 255));
+	
 
-	//prepare squares and pieces:
+	//подготовить квадраты и фигуры:
 	squares[0] = sq::Square(Red,"a1",'1'); squares[1] = sq::Square(Red,"c1",'1'); 
 	squares[2] = sq::Square(Red,"e1",'1'); squares[3] = sq::Square(Red,"g1",'1');
 	squares[4] = sq::Square(Red,"b2",'2'); squares[5] = sq::Square(Red,"d2",'2'); 
@@ -42,8 +56,7 @@ void prepareGame() {
 	return;
 }
 
-// Asks the user for an input in the form of a click on the window. The window
-// will respond to other actions such as closing the window as well.
+// Запрос действий пользователя (клик по окну, нажатие кнопок, закрыть окно, и т.п.).
 std::string get_GUI_Input() {
   std::string result = " ";
 
@@ -54,19 +67,25 @@ std::string get_GUI_Input() {
   sf::Texture help_guide;
   help_guide.loadFromFile("Resources/help.png");
   sf::Sprite help(help_guide);
-  help.setPosition(sf::Vector2f(650.0f, 100.0f));
+  help.setPosition(sf::Vector2f(650.0f, 150.0f));
   curTurn.setPosition(650.0f, 400.0f);
   curTurn.setFont(font);
+  wEat.setPosition(650.0f, 20.0f);
+  wEat.setFont(font);
+  bEat.setPosition(650.0f, 540.0f);
+  bEat.setFont(font);
+  wEat.setCharacterSize(60);
+  bEat.setCharacterSize(60);
   winMsg.setPosition(180.0f, 250.0f);
   winMsg.setCharacterSize(60);
   winMsg.setFillColor(sf::Color::Black);
-  winMsg.setOutlineColor(sf::Color::White);
+  winMsg.setOutlineColor(sf::Color::Red);
   winMsg.setOutlineThickness(5);
   winMsg.setFont(font);
   egMsg.setPosition(180.0f, 315.0f);
   egMsg.setCharacterSize(40);
   egMsg.setFillColor(sf::Color::Black);
-  egMsg.setOutlineColor(sf::Color::White);
+  egMsg.setOutlineColor(sf::Color::Red);
   egMsg.setOutlineThickness(2);
   egMsg.setFont(font);  
   while (gameBoard.getWindow()->isOpen()) {
@@ -111,6 +130,10 @@ std::string get_GUI_Input() {
     gameBoard.getWindow()->draw(help);
 	gameBoard.getWindow()->draw(winMsg);
 	gameBoard.getWindow()->draw(egMsg);
+	gameBoard.getWindow()->draw(wPie);
+	gameBoard.getWindow()->draw(bPie);
+	gameBoard.getWindow()->draw(wEat);
+	gameBoard.getWindow()->draw(bEat);
     gameBoard.getWindow()->display();
   }
 
@@ -118,7 +141,7 @@ std::string get_GUI_Input() {
 }
 
 bool isSquare (std::string sq) {
-	//only used in constructor
+	//используется только в конструкторе
 	if(sq == "a1" || sq == "c1" || sq == "e1" || sq == "g1" 
 		|| sq == "b2" || sq == "d2" || sq == "f2" || sq == "h2"
 		|| sq == "a3" || sq == "c3" || sq == "e3" || sq == "g3"
@@ -131,8 +154,6 @@ bool isSquare (std::string sq) {
 }
 
 char reverseCrown(char color) {
-	//returns either the crowned version of a color ('R' or 'B')
-	//or uncrowned version ('r' or 'b')
 	if(color == Red) return cRed;
 	if(color == Black) return cBlack;
 	if(color == cRed) return Red;
@@ -146,7 +167,7 @@ bool cannotMakeMove() {
 	{
 		if(possibleMovement(&squares[i])) 
 		{ 
-			return false; //a move is possible
+			return false; //передвижение возможно
 		}
 		if(possibleCapture(&squares[i])) return false;
 	}
@@ -154,9 +175,9 @@ bool cannotMakeMove() {
 }
 
 bool possibleMovement(sq::Square *initSq) {
-	//can the piece on initSq move one square?
+	//фигура в initSq может переместиться на 1 квадрат?
 
-	//if initSq's color is wrong, return false
+	//если цвет в initSq не верный return false(не тот ход)
 	if(turn != initSq->color() && reverseCrown(turn) != initSq->color())
 	{
 		return false;
@@ -164,14 +185,12 @@ bool possibleMovement(sq::Square *initSq) {
 
 	switch (initSq->color()) {
 	case Red:
-		//if red, can the piece move one square forward
+		//если белый, может ли фигура двинуться на 1 квадрат вперед
 		for(size_t i = 0; i < initSq->getFrtAdjSqs().size(); ++i)
 		{
-			//size_t i holds the address of an adjacent square
-			//check if the square with the same address as the
-			//adjacent square is blank (meaning a piece can move
-			//there and movement is possible)
-			if(initSq->getFrtAdjSqs()[i] != " " && //prevent using getAddress on non-square
+			//size_t i хранит адрес соседнего квадрата
+			//проверить пустой ли квадрат с этим адресом
+			if(initSq->getFrtAdjSqs()[i] != " " && //предотвращает использование getAddress не на квадрат
 				squares[getAddress(initSq->getFrtAdjSqs()[i])].color() == ' ') 
 			{
 				return true;
@@ -179,14 +198,12 @@ bool possibleMovement(sq::Square *initSq) {
 		}
 		break;
 	case Black:
-		//if black, can the piece move one square backward (from our view)
+		//если черный, может ли фигура двинуться на 1 квадрат назад (с нашей точки зрения)
 		for(size_t i = 0; i < initSq->getBacAdjSqs().size(); ++i)
 		{
-			//size_t i holds the address of an adjacent square
-			//check if the square with the same address as the
-			//adjacent square is blank (meaning a piece can move
-			//there and movement is possible)
-			if(initSq->getBacAdjSqs()[i] != " " && //prevent using getAddress on non-square
+			//size_t i хранит адрес соседнего квадрата
+			//проверить пустой ли квадрат с этим адресом
+			if(initSq->getBacAdjSqs()[i] != " " && //предотвращает использование getAddress не на квадрат
 				squares[getAddress(initSq->getBacAdjSqs()[i])].color() == ' ') 
 			{
 				return true;
@@ -194,20 +211,18 @@ bool possibleMovement(sq::Square *initSq) {
 		}
 		break;
 	case cRed: case cBlack:
-		//if crowned, can the piece move one square any direction
-		for(size_t i = 0; i < initSq->getFrtAdjSqs().size(); ++i) //here, size() returns 2 and works for both
+		//если дамка, фигура может двигаться в любом направлении
+		for(size_t i = 0; i < initSq->getFrtAdjSqs().size(); ++i) //здесь, size() возвращает 2 и работает для обоих
 															   //getFrtAdjSqs and getBacAdjSqs
 		{
-			//size_t i holds the address of an adjacent square
-			//check if the square with the same address as the
-			//adjacent square is blank (meaning a piece can move
-			//there and movement is possible)
-			if(initSq->getFrtAdjSqs()[i] != " " && //prevent using getAddress on non-square
+			//size_t i хранит адрес соседнего квадрата
+			//проверить пустой ли квадрат с этим адресом
+			if(initSq->getFrtAdjSqs()[i] != " " && //предотвращает использование getAddress не на квадрат
 				squares[getAddress(initSq->getFrtAdjSqs()[i])].color() == ' ') 
 			{
 				return true;
 			}
-			if(initSq->getBacAdjSqs()[i] != " " && //prevent using getAddress on non-square
+			if(initSq->getBacAdjSqs()[i] != " " && //предотвращает использование getAddress не на квадрат
 				squares[getAddress(initSq->getBacAdjSqs()[i])].color() == ' ') 
 			{
 				return true;
@@ -222,12 +237,10 @@ void getSquare() {
 
 	std::cout << "Current turn: "<<turn<<"\n";
 	std::cout << "Enter coordinate of piece you want to move (ex. a1, f8):\n";
-	//std::cin >> selection;
-
+	
   selection = get_GUI_Input();
   std::cout << selection << std::endl;
   
-  //std::cout << selection << '\n';
 	if(selection == "h" || selection == "help")
 		{ displayHelp(); getSquare(); }
 	if(selection == "d" || selection == "display") 
@@ -240,22 +253,20 @@ void getSquare() {
 }
 
 bool goodSquare(std::string sq) {	
-	//checks if color of piece on the square is correct and
-	//if square is accessible
+	//проверяет правильный ли цвет фигуры в квадрате и доступен ли квадрат
 
 	if(!isSquare(sq)) { std::cout << "\nError: You did not select an accessible square\n"; return false; }
 	
-	selected = getAddress(selection); //getAddress(...) after isSquare to prevent crash
-	                                  //(i.e. There's no address for non-squares)
+	selected = getAddress(selection); //getAddress(...) после isSquare чтобы предотвратить ошибки
 
 	if(turn != squares[selected].color() && reverseCrown(turn) != squares[selected].color()) 
 		{ std::cout << "\nError: Picked wrong color.\n"; return false; }
 			
-	return true; //Success!
+	return true; 
 }
 
 void getTarget() {
-	locked.setString("LOCKED!");
+	locked.setString(L"Фигура выбрана!");
 	if(selection == "q" || selection == "quit") return;
 	std::cout<<"Enter coordinate of target square (ex. a1, f8):\n";
 	//std::cin >> selection;
@@ -264,7 +275,7 @@ void getTarget() {
 
 	if(selection == "d" || selection == "display") 
 		{ displayBoard(squares,2); getTarget(); }
-	if(selection == "r" || selection == "reset")	//reset option in case no possible target
+	if(selection == "r" || selection == "reset")	//сброс фигуры, если у выбранной фигуры нет доступных ходов
 	{	
 		locked.setString("");
 		displayBoard(squares,2); getSquare(); 
@@ -278,24 +289,23 @@ void getTarget() {
 
 bool goodTarget(std::string sq) {
 
-	//check if sq is a square
+	//проверить квадрат ли sq
 	if(!isSquare(sq)) 
 	{
 		std::cout << "\nError: Targeted square is not a square\n";
 		return false;
 	}
 
-	targeted = getAddress(selection); //getAddress(...) after isSquare to prevent crash
-	                                  //(i.e. There's no address for non-squares)
+	targeted = getAddress(selection); 
 	
-	//check if targeted is different from selected
+	//проверить, отличается ли targeted от selected
 	if(targeted == selected)
 	{
 		std::cout << "\nError: Targeted square and selected square are the same?\n";
 		return false;
 	}
 
-	//check if sq is empty
+	//проверить пустой ли sq
 	if(squares[targeted].color() != ' ') 
 	{
 		std::cout << "\nError: The target square is not empty.\n";
@@ -313,8 +323,7 @@ bool goodTarget(std::string sq) {
 			}
 			if(twoFrSqAway())
 			{
-				//if target is two squares away in front, 
-				//then there has to be a capture
+				//если target в 2х квадратах впереди, то должен быть захват
 				if(!isCapture()) 
 				{
 					std::cout << "\nError: The target square is two squares away, but there is no captured piece.\n";
@@ -331,8 +340,7 @@ bool goodTarget(std::string sq) {
 			}
 			if(twoBcSqAway())
 			{
-				//if target is two squares away in front (or behind from our view),
-				//then there has to be a capture
+				////если target в 2х квадратах сзади, то должен быть захват
 				if(!isCapture())
 				{
 					std::cout << "\nError: The target square is two squares away, but there is no piece to capture.\n";
@@ -343,7 +351,7 @@ bool goodTarget(std::string sq) {
 	}
 	if(squares[selected].isCrowned())
 	{
-		//crowned pieces can move forward or backward
+		//дамки могут двигаться вперед или назад
 		if(!oneFrSqAway() && !oneBcSqAway() && !twoFrSqAway() && !twoBcSqAway())
 		{
 			std::cout << "\nError: The target square is not within reach.\n";
@@ -351,8 +359,7 @@ bool goodTarget(std::string sq) {
 		}
 		if(twoFrSqAway() || twoBcSqAway())
 		{
-			//if target is two squares away, 
-			//then there has to be capture
+			//если target в 2х квадратах, то должен быть захват
 			if(!isCapture())
 			{
 				std::cout << "\nError: The target square is two squares away, but there is no piece to capture.\n";
@@ -378,8 +385,8 @@ int getAddress(std::string sq)
 
 bool oneFrSqAway()
 {
-	//is the target one square away in front?
-	for(size_t i = 0; i < squares[selected].getFrtAdjSqs().size(); ++i) //size() will always equal 2
+	//цель в 1 квадрате впереди?
+	for(size_t i = 0; i < squares[selected].getFrtAdjSqs().size(); ++i) //size() всегда равен 2
 	{
 		if(squares[selected].getFrtAdjSqs()[i] == squares[targeted].square()) return true;
 	}
@@ -389,8 +396,8 @@ bool oneFrSqAway()
 
 bool oneBcSqAway()
 {
-	//is the target one square away in back?
-	for(size_t i = 0; i < squares[selected].getBacAdjSqs().size(); ++i) //size() will always equal 2
+	//цель в 1 квадрате сзади?
+	for(size_t i = 0; i < squares[selected].getBacAdjSqs().size(); ++i) //size() всегда равен 2
 	{
 		if(squares[selected].getBacAdjSqs()[i] == squares[targeted].square()) return true;
 	}
@@ -400,8 +407,8 @@ bool oneBcSqAway()
 
 bool twoFrSqAway()
 {
-	//is the target two squares away and in front?
-	for(size_t i = 0; i < squares[selected].getFrtJmpSqs().size(); ++i) //size() will always equal 2
+	//цель в 2 квадратах впереди?
+	for(size_t i = 0; i < squares[selected].getFrtJmpSqs().size(); ++i) //size() всегда равен 2
 	{
 		if(squares[selected].getFrtJmpSqs()[i] == squares[targeted].square()) return true;
 	}
@@ -411,8 +418,8 @@ bool twoFrSqAway()
 
 bool twoBcSqAway()
 {
-	//is the target two squares away and behind? (for crowned pieces)
-	for(size_t i = 0; i < squares[selected].getBacJmpSqs().size(); ++i) //size() will always equal 2
+	//цель в 2х квадратах сзади? (для дамок)
+	for(size_t i = 0; i < squares[selected].getBacJmpSqs().size(); ++i) //size() всегда равен 2
 	{
 		if(squares[selected].getBacJmpSqs()[i] == squares[targeted].square()) return true;
 	}
@@ -421,7 +428,7 @@ bool twoBcSqAway()
 }
 
 char getLetCoordinate(std::string sq)
-	//returns letter coordinate of any square
+	//возвращает буквенную координату любого квадрата
 {
 	if(sq == "a1" || sq == "a3" || sq == "a5" || sq == "a7") return 'a';
 	if(sq == "b2" || sq == "b4" || sq == "b6" || sq == "b8") return 'b';
@@ -436,8 +443,8 @@ char getLetCoordinate(std::string sq)
 
 std::string getSqInBetween(sq::Square *initSq, sq::Square *targetSq)
 {
-	//gets square in between by getting letCoord,
-	//getting numCoord, then adding them to newSquare at end
+	//находит квадрат между беря letCoord,
+	// numCoord, и добавляя их в newSquare в конце
 
 	captureDirection = getCapDirection(&initSq->square(), &targetSq->square());
 
@@ -445,7 +452,7 @@ std::string getSqInBetween(sq::Square *initSq, sq::Square *targetSq)
 	char letCoord = ' ';
 	char numCoord = ' ';
 
-	//get the letter part of the in-between square's name
+	//получить букву квадрата между
 	switch(getLetCoordinate(initSq->square())) 
 	{
 	case 'a': if(captureDirection == Right) letCoord = 'b'; break;
@@ -469,7 +476,7 @@ std::string getSqInBetween(sq::Square *initSq, sq::Square *targetSq)
 	default: error("Exception: getSqInBetween(...) cannot get letter part of name.\n");
 	}
 
-	//get the number part of the square name
+	//получить цифру квадрата между
 	if(!initSq->isCrowned())
 	{
 		switch(turn) 
@@ -486,22 +493,20 @@ std::string getSqInBetween(sq::Square *initSq, sq::Square *targetSq)
 	}
 	if(initSq->isCrowned())
 	{
-		if(upCapture(initSq,targetSq)) numCoord = targetSq->row() - 1; //if capturing upward, treat as red piece capturing
-		if(downCapture(initSq,targetSq)) numCoord = targetSq->row() + 1; //if capturing downward, treat as black piece capturing
+		if(upCapture(initSq,targetSq)) numCoord = targetSq->row() - 1; //если захват вверх, обращаться как с захватом белых
+		if(downCapture(initSq,targetSq)) numCoord = targetSq->row() + 1; //если вниз - черных
 	}
 	
-	//make newSquare out of coordinates
-	newSquare = letCoord; //no addition here; that would leave a space at beginning (ex. " a1" instead of "a1")
-	                      //erase the space with assignment instead of addition
+	newSquare = letCoord; 
 	newSquare += numCoord;
 	return newSquare;
 }
 
 char getCapDirection(std::string *initSq, std::string *targetSq)
 {
-	//these two if-statements work for both red and black
+	//эти условия работают и для черных, и для белых
 	if(getLetCoordinate(*initSq) < getLetCoordinate(*targetSq)) 
-		//ex. with b2 to d4, b is "less" than d, so direction is right
+		//например b2 в d4, b "меньше" d, так что направление верное
 		return Right;
 	
 	if(getLetCoordinate(*initSq) > getLetCoordinate(*targetSq)) 
@@ -511,9 +516,7 @@ char getCapDirection(std::string *initSq, std::string *targetSq)
 
 char getRowParity(char row)
 {
-	//parity is whether a number is odd or even
-	//returns Odd ('O') or Even ('E'), depending on the
-	//number coordinate of the square
+	//четный или нечетный ряд, в зависимости от численной координаты
 	switch(row) 
 		{
 		case '1': case '3': case '5': case '7':
@@ -536,78 +539,61 @@ bool downCapture(sq::Square *initSq, sq::Square *targetSq) {
 
 bool R_Capture1()
 {
-	//is red's first capture condition satisfied?
-	//this condition is described at the top of this file as:
-		// 1) start odd-numbered row, going right
+	//первое условие белых выполняется?
 	if(initialRowParity == Odd && captureDirection == Right) return true;
 	return false;
 }
 
 bool R_Capture2()
 {
-	//is red's second capture condition satisfied?
-	//this condition is described at the top of this file as:
-		// 2) start even-numbered row, going right
+	//второе условие белых выполняется?
 	if(initialRowParity == Even && captureDirection == Right) return true;
 	return false;
 }
 
 bool R_Capture3()
 {
-	//is red's third capture condition satisfied?
-	//this condition is described at the top of this file as:
-		// 3) start odd-numbered row, going left
+	//третье условие белых выполняется?
 	if(initialRowParity == Odd && captureDirection == Left) return true;
 	return false;
 }
 
 bool R_Capture4()
 {
-	//is red's fourth capture condition satisfied?
-	//this condition is described at the top of this file as:
-		// 4) start even-numbered row, going left
+	//четвертое условие белых выполняется?
 	if(initialRowParity == Even && captureDirection == Left) return true;
 	return false;
 }
 
 bool B_Capture1()
 {
-	//is black's first capture condition satisfied?
-	//this condition is described at the top of this file as:
-		// 1) start odd-numbered row, going left
+	//первое условие черных выполняется?
 	if(initialRowParity == Odd && captureDirection == Left) return true;
 	return false;
 }
 
 bool B_Capture2()
 {
-	//is black's second capture condition satisfied?
-	//this condition is described at the top of this file as:
-		// 2) start even-numbered row, going left
+	//второе условие черных выполняется?
 	if(initialRowParity == Even && captureDirection == Left) return true;
 	return false;
 }
 
 bool B_Capture3()
 {
-	//is black's third capture condition satisfied?
-	//this condition is described at the top of this file as:
-		// 3) start odd-numbered row, going right
+	//третье условие черных выполняется?
 	if(initialRowParity == Odd && captureDirection == Right) return true;
 	return false;
 }
 
 bool B_Capture4()
 {
-	//is black's fourth capture condition satisfied?
-	//this condition is described at the top of this file as:
-		// 4) start even-numbered row, going right
+	//четвертое условие черных выполняется?
 	if(initialRowParity == Even && captureDirection == Right) return true;
 	return false;
 }
 
 char oppoColor(char color) { 
-	//also works on crowned colors ('R' or 'B')
 	switch(color) {
 	case Red: return Black;
 	case Black: return Red;
@@ -618,19 +604,18 @@ char oppoColor(char color) {
 }
 
 bool isCapture() {
-	//is a capture occuring?
+	//происходит ли захват?
 
-	//check for the capture conditions described at the top of this file
-	// 1) color held by char turn
+	//проверить на условия захвата
+	// 1) определить цвет
 
-	// 2) determine oddness/evenness of initial square's row
+	// 2) определить четность ряда
 	initialRowParity = getRowParity(squares[selected].row());
 
-	// 3) determine capture direction
+	// 3) определить направление захвата
 	captureDirection = getCapDirection(&squares[selected].square(), &squares[targeted].square());
 
-	//check if any capture condition is true
-	//capture conditions differ for crowned vs. non-crowned
+	//проверить выполняется ли какое нибудь из условий захвата
 	if(!squares[selected].isCrowned())
 	{
 		switch(turn)
@@ -666,34 +651,51 @@ bool isCapture() {
 		else return false;
 	}
 
-	//save vector address of inBetween square
+	//сохранить адрес квадрата между inBetween
 	inBetween = getAddress(getSqInBetween(&squares[selected], &squares[targeted] ));
 
 	if(squares[inBetween].color() != oppoColor(turn) && squares[inBetween].color() != reverseCrown(oppoColor(turn))) return false;
+	//счетчик захваченых фигур
+	switch (squares[inBetween].color()) {
+		case 'r':
+			wEaten += 1;
+			wEat.setString(std::to_string(wEaten));
+			break;
+		case 'R':
+			wEaten += 1;
+			wEat.setString(std::to_string(wEaten));
+			break;
+		case'b':
+			bEaten += 1;
+			bEat.setString(std::to_string(bEaten));
+			break;
+		case'B':
+			bEaten += 1;
+			bEat.setString(std::to_string(bEaten));
+			break;
+	}
 
-	//only do this if any of the above capture conditions is true
-	//mark the in-between square as captured
-	squares[inBetween].switchCap(true);  //this square is now captured
+	//отметить фигуру между как захваченую
+	squares[inBetween].switchCap(true);  //этот квадрат теперь захвачен
 	return true;
 }
 
 void updateBoard() {
-	// 1) resolve piece movement:
-	//to "move" a piece, change targeted square's color to
-	//selected square's color, 
+	// 1) регулирует движение фигур:
+	//чтобы "передвинуть" фигуру, меняем цвет нужного квадрата
+	//на цвет текущего квадрата, 
 	squares[targeted].changeColor(squares[selected].color());
 	
-	//then make the selected square's color blank (no piece on it)
+	//затем меняем цвет текущего квадрата на пустой
 	squares[selected].changeColor(' ');
 
-	//move the crowned "trait" from square to square
 	if(squares[selected].isCrowned()) 
 	{ 
 		squares[selected].switchCrown(false); 
 		squares[targeted].switchCrown(true); 
 	}
 
-	// 2) resolve captures (make captured pieces disappear):
+	// 2) регулирует захваты (заставляет исчезать захваченые фигуры):
 	for(size_t i=0; i<squares.size(); ++i)
 	{
 		if(squares[i].isCaptured()) 
@@ -706,7 +708,7 @@ void updateBoard() {
 		}
 	}
 
-	// 3) promote pieces to crowned
+	// 3) чики брики и в дамки
 	if(isPromotion() && !squares[targeted].isCrowned()) 
 	{ 
 		squares[targeted].switchCrown(true); 
@@ -730,23 +732,17 @@ bool isPromotion() {
 }
 
 bool possibleCapture(sq::Square *initSq) {
-	//is a capture possible?
-	//program can know whether to prompt user for multiple consecutive captures
-	//(double jumps, triple jumps, etc.)
-	//used after resolution of piece movement in a turn
-	//if there is a possible capture, the user may make a second move to capture
-	//if there is another capture, the user may again make another move, and so on
+	//возможен ли захват?
+	//используется для последовательных прыжков
+	//используется2 после передвижения фигуры в ходу
 
-	int address = getAddress(initSq->square()); //store this address to check if capture is
-												//possible based on vector location
+	int address = getAddress(initSq->square()); 
 	initialRowParity = getRowParity(initSq->row());
-
-	//int targeted still has address of landing square of piece
+	//проверка условий захвата
 	if(initSq->color() == Red || initSq->isCrowned()) 
 	{
-		//check if red's first capture conditions are true and allow a capture:
 		if(initialRowParity == Odd && 
-		address + rOddRightCapJmp < squares.size() && //prevent out-of-range error
+		address + rOddRightCapJmp < squares.size() && 
 		squares[address + rOddRightCapJmp].color() == ' ' &&
 		squares[address + rOddRightHafJmp].square() == getSqInBetween(initSq,&squares[address + rOddRightCapJmp])) 
 		{
@@ -754,9 +750,8 @@ bool possibleCapture(sq::Square *initSq) {
 				squares[address + rOddRightHafJmp].color() == reverseCrown(oppoColor(initSq->color()))) return true;
 		}
 		
-		//check if red's second capture conditions are true and allow a capture:
 		if(initialRowParity == Even &&
-		address + rEvenRightCapJmp < squares.size() && //prevent out-of-range error
+		address + rEvenRightCapJmp < squares.size() && 
 		squares[address + rEvenRightCapJmp].color() == ' ' &&
 		squares[address + rEvenRightHafJmp].square() == getSqInBetween(initSq,&squares[address + rEvenRightCapJmp])) 
 		{
@@ -764,9 +759,8 @@ bool possibleCapture(sq::Square *initSq) {
 				squares[address + rEvenRightHafJmp].color() == reverseCrown(oppoColor(initSq->color()))) return true;
 		}
 		
-		//check if red's third capture conditions are true and allow a capture:
 		if(initialRowParity == Odd &&
-		address + rOddLeftCapJmp < squares.size() && //prevent out-of-range error
+		address + rOddLeftCapJmp < squares.size() &&
 		squares[address + rOddLeftCapJmp].color() == ' ' &&
 		squares[address + rOddLeftHafJmp].square() == getSqInBetween(&squares[address],&squares[address + rOddLeftCapJmp])) 
 		{
@@ -774,9 +768,8 @@ bool possibleCapture(sq::Square *initSq) {
 				squares[address + rOddLeftHafJmp].color() == reverseCrown(oppoColor(initSq->color()))) return true;
 		}
 
-		//check if red's fourth capture conditions are true and allow a capture:
 		if(initialRowParity == Even &&
-		address + rEvenLeftCapJmp < squares.size() && //prevent out-of-range error
+		address + rEvenLeftCapJmp < squares.size() &&
 		squares[address + rEvenLeftCapJmp].color() == ' ' &&
 		squares[address + rEvenLeftHafJmp].square() == getSqInBetween(&squares[address],&squares[address + rEvenLeftCapJmp]))
 		{
@@ -786,9 +779,8 @@ bool possibleCapture(sq::Square *initSq) {
 	}
 	if(initSq->color() == Black || initSq->isCrowned())
 	{
-		//check if black's first capture conditions are true and allow a capture:
 		if(initialRowParity == Odd &&
-		address + bOddLeftCapJmp >= lowVectorRange && //prevent out-of-range error
+		address + bOddLeftCapJmp >= lowVectorRange && 
 		squares[address + bOddLeftCapJmp].color() == ' ' &&
 		squares[address + bOddLeftHafJmp].square() == getSqInBetween(&squares[address],&squares[address + bOddLeftCapJmp])) 
 		{
@@ -796,9 +788,8 @@ bool possibleCapture(sq::Square *initSq) {
 				squares[address + bOddLeftHafJmp].color() == reverseCrown(oppoColor(initSq->color()))) return true;
 		}
 
-		//check if black's second capture conditions are true and allow a capture:
 		if(initialRowParity == Even &&
-		address + bEvenLeftCapJmp >= lowVectorRange && //prevent out-of-range error
+		address + bEvenLeftCapJmp >= lowVectorRange && 
 		squares[address + bEvenLeftCapJmp].color() == ' ' &&
 		squares[address + bEvenLeftHafJmp].square() == getSqInBetween(&squares[address],&squares[address + bEvenLeftCapJmp])) 
 		{
@@ -806,9 +797,8 @@ bool possibleCapture(sq::Square *initSq) {
 				squares[address + bEvenLeftHafJmp].color() == reverseCrown(oppoColor(initSq->color()))) return true;
 		}
 		
-		//check if black's third capture conditions are true and allow a capture:
 		if(initialRowParity == Odd && 
-		address + bOddRightCapJmp >= lowVectorRange && //prevent out-of-range error
+		address + bOddRightCapJmp >= lowVectorRange && 
 		squares[address + bOddRightCapJmp].color() == ' ' &&
 		squares[address + bOddRightHafJmp].square() == getSqInBetween(&squares[address],&squares[address + bOddRightCapJmp]))
 		{
@@ -816,9 +806,8 @@ bool possibleCapture(sq::Square *initSq) {
 				squares[address + bOddRightHafJmp].color() == reverseCrown(oppoColor(initSq->color()))) return true;
 		}
 
-		//check if black's fourth capture conditions are true and allow a capture:
 		if(initialRowParity == Even &&
-			address + bEvenRightCapJmp >= lowVectorRange && //prevent out-of-range error
+			address + bEvenRightCapJmp >= lowVectorRange && 
 			squares[address + bEvenRightCapJmp].color() == ' ' &&
 			squares[address + bEvenRightHafJmp].square() == getSqInBetween(&squares[address],&squares[address + bEvenRightCapJmp]))
 		{
@@ -842,26 +831,23 @@ void getConsecutiveJmpTarget() {
 	if(selection == "d" || selection == "display") 
 		{ displayBoard(squares,2); getConsecutiveJmpTarget(); }
 	if(selection == "q" || selection == "quit") return;
-	if(selection == "s" || selection == "skip") return; //enter "s" or "skip" to skip consecutive jump
+	if(selection == "s" || selection == "skip") return; 
 	if(!goodConsecutiveJmpTarget(selection)) getConsecutiveJmpTarget(); 
 	return;
 }
 
 bool goodConsecutiveJmpTarget(std::string sq) {
-	//same as bool goodTarget(std::string sq), except:
-		//no checking if target is empty (that's done in bool possibleCapture())
+	//то же самое что и bool goodTarget(std::string sq), за исключением:
+		//нет проверки на пустоту ячейки цели (проверяется в bool possibleCapture())
 	
-	//check if sq is a square
 	if(!isSquare(sq)) 
 	{
 		std::cout << "\nError: Targeted square is not a square\n";
 		return false;
 	}
 
-	targeted = getAddress(selection); //getAddress(...) after isSquare to prevent crash
-	                                  //(i.e. There's no address for non-squares)
+	targeted = getAddress(selection); 
 	
-	//check if targeted is different from selected
 	if(targeted == selected)
 	{
 		std::cout << "\nError: Targeted square and selected square are the same?\n";
@@ -880,8 +866,6 @@ bool goodConsecutiveJmpTarget(std::string sq) {
 			}
 			else if(twoFrSqAway())
 			{
-				//if target is two squares away in front, 
-				//then there has to be a capture
 				if(!isCapture()) 
 				{
 					std::cout << "\nError: The target square is two squares away, but there is no captured piece.\n";
@@ -904,8 +888,6 @@ bool goodConsecutiveJmpTarget(std::string sq) {
 			}
 			else if(twoBcSqAway())
 			{
-				//if target is two squares away in front (or behind from our view),
-				//then there has to be a capture
 				if(!isCapture())
 				{
 					std::cout << "\nError: The target square is two squares away, but there is no piece to capture.\n";
@@ -921,7 +903,6 @@ bool goodConsecutiveJmpTarget(std::string sq) {
 	}
 	if(squares[selected].isCrowned())
 	{
-		//crowned pieces can move forward or backward
 		if(oneFrSqAway() || oneBcSqAway())
 		{
 			std::cout << "\nError: A consecutive turn must be a capture.\n" <<
@@ -930,8 +911,6 @@ bool goodConsecutiveJmpTarget(std::string sq) {
 		}
 		else if(twoFrSqAway() || twoBcSqAway())
 		{
-			//if target is two squares away, 
-			//then there has to be capture
 			if(!isCapture())
 			{
 				std::cout << "\nError: The target square is two squares away, but there is no piece to capture.\n";
@@ -956,10 +935,10 @@ void displayHelp() {
 }
 
 void redTurn() {
-	curTurn.setString("current turn: White");
+	curTurn.setString(L"Текущий ход: Белые");
 	displayBoard(squares,2);
 	getSquare();
-	locked.setString("LOCKED!"); //MARK
+	locked.setString(L"Фигура выбрана!");
 	if(selection == "q" || selection == "quit") return;
 	getTarget();
 	if(selection == "q" || selection == "quit") return;
@@ -972,18 +951,18 @@ void redTurn() {
 		if(selection == "q" || selection == "quit") return;
 		if (selection == "s" || selection == "skip") {
 			locked.setString(""); return;
-		}													 //do this before updateBoard()
-															//otherwise updateBoard removes squares[selected]
+		}													 //это нужно сделать перед updateBoard()
+															//иначе updateBoard уберет squares[selected]
 		updateBoard();
 	}
 	locked.setString("");
 }
 
 void blackTurn() {
-	curTurn.setString("current turn: Black");
+	curTurn.setString(L"Текущий ход: Черные");
 	displayBoard(squares,2);
 	getSquare();
-	locked.setString("LOCKED!"); //MARK
+	locked.setString(L"Фигура выбрана!");
 	if(selection == "q" || selection == "quit") return;
 	getTarget();
 	if(selection == "q" || selection == "quit") return;
@@ -996,8 +975,8 @@ void blackTurn() {
 		if(selection == "q" || selection == "quit") return;
 		if(selection == "s" || selection == "skip") {
 			locked.setString(""); return;
-		}													 //do this before updateBoard()
-															//otherwise updateBoard removes squares[selected]
+		}													 //это нужно сделать перед updateBoard()
+															//иначе updateBoard уберет squares[selected]
 		updateBoard();
 	}
 	locked.setString("");
@@ -1007,13 +986,13 @@ bool gameOver() {
 	bool rGameOver = true;
 	bool bGameOver = true;
 
-	if(loser == Both) return true; //in case of draw
+	if(loser == Both) return true; //в случае ничьей
 
-	//it is game over if either side has no pieces remaining
+	//конец игры, если у одной из сторон не осталось фигур
 	for(size_t i = 0; i < squares.size(); ++i)
 	{
-		//if there is a piece of a certain color,
-		//then that side has not lost
+		//если есть фигура одного из цветов,
+		//то эта сторона не проиграла
 		if(squares[i].color() == Red || squares[i].color() == cRed) rGameOver = false;
 		if(squares[i].color() == Black || squares[i].color() == cBlack) bGameOver = false;
 	}
@@ -1031,9 +1010,8 @@ void checkersGame() {
 	{
 		if(cannotMakeMove())
 		{
-			//if there is no possible move for the turn player (which can happen in checkers),
-			//then the game is a draw
-			loser = Both; //this will cause gameOver() to return true
+			//если нет доступных ходов у текущего игрока, то это ничья
+			loser = Both; //это заставит gameOver() вернуть true
 		}
 		else if(turn == Red)
 		{
@@ -1043,13 +1021,11 @@ void checkersGame() {
 		}
 		else if(turn == Black)
 		{
-			//curTurn.setString("current turn: Black");
-			//curTurn.setFont(font);
 			blackTurn();
 			if(selection == "q" || selection == "quit") quit = true;
 			turn = oppoColor(turn);
 		}
-		wasCapture = false; //prepare for next turn
+		wasCapture = false; //подготовка к следующему ходу
 	}
 	if(gameOver() && !quit)
 	{
@@ -1065,24 +1041,24 @@ void handleLoss() {
 }
 
 void redLoses() {
-	//tells the user that red has lost
-	winMsg.setString("Black won!");
+	//сообщает что черные победили
+	winMsg.setString(L"Чёрные победили!");
 	gameBoard.getWindow()->draw(winMsg);
 	displayBoard(squares,2);
 	std::cout << "Game over! Red loses. Black wins.\n";
 }
 
 void blackLoses() {
-	//tells the user that black has lost
-	winMsg.setString("White won!");
+	//сообщает что белые победили
+	winMsg.setString(L"Белые победили!");
 	gameBoard.getWindow()->draw(winMsg);
 	displayBoard(squares,2);
 	std::cout << "Game over! Black loses. Red wins.\n";
 }
 
 void tieGame() {
-	//tells the user that the game is a draw
-	winMsg.setString("Game tied!");
+	//сообщает о ничьей
+	winMsg.setString(L"Ничья!");
 	gameBoard.getWindow()->draw(winMsg);
 	displayBoard(squares,2);
 	std::cout << "Game over! The game is a draw.\n";
@@ -1091,9 +1067,9 @@ void tieGame() {
 }
 
 bool playAgain() {
-	//does the user want another game?
+	//пользователь хочет еще одну игру?
 	std::cout << "\nWould you like to play another game?\n";
-	egMsg.setString("Press 'N' for new game.\nPress any key to exit.");
+	egMsg.setString(L"Нажмите 'N' для новой игры.\nНажмите любую из кнопок\nв окне помощи для выхода.");
 	gameBoard.getWindow()->draw(egMsg);
 	gameBoard.getWindow()->display();
 	selection = get_GUI_Input();
@@ -1105,7 +1081,7 @@ bool playAgain() {
 }
 
 void exit() {
-	//handles exit
+	//выход
 	std::cout << "Enter a character to exit:\n";
 	char c;
 	std::cin >> c;

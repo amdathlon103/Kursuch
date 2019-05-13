@@ -2,18 +2,18 @@
 #define CONSTANTS_H
 
 namespace constants {
-	const char Red = 'r';
-	const char cRed = 'R'; //crowned red
-	const char Black = 'b';
-	const char cBlack = 'B'; //crowned black
+	const char Red = 'r';//белый
+	const char cRed = 'R'; //дамка белая
+	const char Black = 'b';//черный
+	const char cBlack = 'B'; //дамка черная
 	const char Both = 'x'; //in case of a tie, char loser = Both
 	const char Left = 'L';
 	const char Right = 'R';
 	const char Odd = 'O';
 	const char Even = 'E';
-	const int lowVectorRange = 0; //lowest subscript within range of vector
+	const int lowVectorRange = 0;
 	
-	//addresses of squares at ends of board (for detecting promotion):
+	//адреса квадратов на концах доски (для перехода в дамки):
 	const int b8 = 28;
 	const int d8 = 29;
 	const int f8 = 30;
@@ -23,33 +23,33 @@ namespace constants {
 	const int e1 = 2;
 	const int g1 = 3;
 
-	//for capturing (see description at top of mainGame.cpp for explanation):
-	const int rOddRightCapJmp = 9; //distance from start to landing square if
-								   //piece starts on odd row heading right
-								   //red's first capture condition true
-	const int rOddRightHafJmp = 4; //distance from start to in-between square if
-								   //piece starts on odd row heading right
-								   //red's first capture condition true
-	//following constants follow same pattern
-	const int rEvenRightCapJmp = 9; //red's second capture condition
+	//для захвата (пояснение в пояснительной записке):
+	const int rOddRightCapJmp = 9; //расстояние от старта до цели, если
+								   //фигура двигается из нечетного ряда вправо
+								   //первое условие захвата белых выполняется
+	const int rOddRightHafJmp = 4; //расстояние от старта до цели, если
+								   //фигура двигается из нечетного ряда влево
+								   //первое условие захвата белых выполняется
+	//следующие константы по тому же принципу
+	const int rEvenRightCapJmp = 9; //второе условие захвата белых
 	const int rEvenRightHafJmp = 5;
 	
-	const int rOddLeftCapJmp = 7; //red's third capture condition
+	const int rOddLeftCapJmp = 7; //третье условие захвата белых
 	const int rOddLeftHafJmp = 3;
 	
-	const int rEvenLeftCapJmp = 7; //red's fourth capture condition
+	const int rEvenLeftCapJmp = 7; //четвертое условие захвата белых
 	const int rEvenLeftHafJmp = 4;
 
-	const int bOddLeftCapJmp = -9; //black's first capture condition
+	const int bOddLeftCapJmp = -9; //первое условие захвата черных
 	const int bOddLeftHafJmp = -5;
 	
-	const int bEvenLeftCapJmp = -9; //black's second capture condition
+	const int bEvenLeftCapJmp = -9; //второе условие захвата черных
 	const int bEvenLeftHafJmp = -4;
 	
-	const int bOddRightCapJmp = -7; //black's third capture condition
+	const int bOddRightCapJmp = -7; //третье условие захвата черных
 	const int bOddRightHafJmp = -4;
 	
-	const int bEvenRightCapJmp = -7; //black's fourth capture condition
+	const int bEvenRightCapJmp = -7; //четвертое условие захвата черных
 	const int bEvenRightHafJmp = -3;
 }
 

@@ -35,26 +35,25 @@ struct Square
 	std::vector<std::string> setBacJmpSqs(std::string sq); //sets std::vector<std::string> backJumpSqs
 	
 private: 
-	//10 members
 	char c;  
-	//color of piece on it
-		//'r' for red
-		//'R' for crowned red
-		//'b' for black
-		//'B' for crowned black
-		//' ' for none
-	std::string s;  //square name; could be a1, e5, etc.
-	char r;  //row; could be 1,2,3,...8
-	std::vector<std::string> frtAdjSqs; //holds adjacent squares in front
-	std::vector<std::string> bacAdjSqs; //holds adjacent squares in back
-	std::vector<std::string> adjSqs; //holds adjacent squares
-	std::vector<std::string> frtJmpSqs; //holds squares that are two away in front
-								 //used to detect a capture
-	std::vector<std::string> bacJmpSqs; //holds squares that are two away in back
-	                            //used to detect a capture by crowned pieces
-	bool crowned; //is the piece on this square crowned?
-				  //if a piece is crowned, it can move backwards in default game mode
-	bool captured; //is the piece on this square captured?
+	//цвет фигуры в квадрате
+		//'r' белая
+		//'R' белая дамка
+		//'b' черная
+		//'B' черная дамка
+		//' ' ничего
+	std::string s;  //имя квадрата. может быть a1, e5, etc.
+	char r;  //ряд. может быть 1,2,3,...8
+	std::vector<std::string> frtAdjSqs; //содержит соседние квадраты впереди
+	std::vector<std::string> bacAdjSqs; //содержит соседние квадраты сзади
+	std::vector<std::string> adjSqs; //содержит соседние квадраты
+	std::vector<std::string> frtJmpSqs; //содержит квадраты через клетку впереди
+								 //используется для захватов
+	std::vector<std::string> bacJmpSqs; //содержит квадраты через клетку сзади
+	                            //используется для захватов с участием дамок
+	bool crowned; //фигура в квадрате дамка?
+				  //если дамка, то может двигаться назад
+	bool captured; //фигура в данном квадрате захвачена?
 };
 
 } // namespace sq

@@ -13,16 +13,14 @@ Piece::Piece(const float &radius,
 }
 
 
-// Uses renderWindow's draw method to draw the Piece.
-// Draws Piece's member sf::CircleShape circle.
+// использует метод draw() для вывода фигур на экран.
+// использует поле sf::CircleShape circle.
 void Piece::draw(sf::RenderWindow &renderWindow) {
   renderWindow.draw(circle);
 }
 
 
-// Repositions the Piece, ignoring the outline thickness (i.e. the x and y
-// coordinates start at the actual shape, not the outline).
-// Uses member sf::CircleShape circle's setPosition() method.
+// передвигает фигуру.
 void Piece::setPosition(const sf::Vector2f &newPosition) {
   circle.setPosition(newPosition);
 }

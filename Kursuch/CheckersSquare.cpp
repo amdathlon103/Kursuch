@@ -2,10 +2,7 @@
 
 namespace ch {
 
-//Public functions:
 
-// Creates and initializes sf::RectangleShape square, the only member
-// variable.
 Square::Square(const float length,
 					     const sf::Color &color, 
 					     const sf::Vector2f &position)
@@ -16,15 +13,11 @@ Square::Square(const float length,
 }
 
 
-// Calls renderWindow's draw() method.
 void Square::draw(sf::RenderWindow &renderWindow) {
 	renderWindow.draw(square);
 }
 
-// Compares int square, which should be an enum Name, to the other members
-// of enum Name to determine which square positioning function to call.
-// squareLength is needed to determine exact coordinates (see comments in
-// CheckersSquare.h from line 28-41).
+// сопоставляет enum с координитами
 sf::Vector2f Square::set_sq_position(int square, const float &squareLength) {
 	switch (square) {
 	case a1: 
@@ -96,11 +89,7 @@ sf::Vector2f Square::set_sq_position(int square, const float &squareLength) {
 	}
 }
 
-// The following 32 functions are all used by Square::set_sq_position(), which
-// is called by Board::positionAccessibleSquares to position the 32 accessible
-// squares on ch::Board.
-// See the comments on lines 28-41 of CheckersSquare.h for an in-depth
-// explanation.
+// функции для позиционирования доступных квадратов.
 sf::Vector2f Square::set_a1_position(const float &squareLength) {
 	return sf::Vector2f(squareLength * kColumn_a_positional_multiplier, 
                       squareLength * kRow_1_positional_multiplier);
@@ -279,13 +268,7 @@ void Square::setColor(const sf::Color &newColor) {
 }
 
 
-// To find the coordinates on a square to place piece_to_place's member
-// sf::CircleShape circle, a little math is needed. Piece
-// piece_to_place's positional coordinates are not on the sf::Circle circle
-// itself, but on the invisible square that both makes up the circle's global
-// bounds and circumscribes the circle. The position of this invisible square 
-// equals the position of sf::Circle circle. The position is equal to the 
-// Square's center minus the radius of piece_to_place. 
+// расчет координаты для помещения фигур.
 sf::Vector2f Square::getCoordinatesToPlacePiece(Piece &piece_to_place) {
   
   sf::Vector2f result = (getCenterCoordinates() - 
@@ -297,14 +280,7 @@ sf::Vector2f Square::getCoordinatesToPlacePiece(Piece &piece_to_place) {
 
 
 
-// To find the center of the square, first find the square's local coordinates.
-// The square's center's local coordinates' are (half of the square's
-// length, half of the square's length). For example, a 4 by 4 square has
-// local center coordinates (2, 2). After, those local coordinates
-// are added to the square's global positional coordinates, creating the
-// square's global center coordinates of the square. For example, a 4 by 4
-// square at position (400, 400) has global center coordinates (402, 402) on
-// its window.
+// рассчет центра квадрата
 sf::Vector2f Square::getCenterCoordinates() {
   const int number_of_radii_in_diameter = 2;
   return sf::Vector2f((getSize().x / number_of_radii_in_diameter) + getPosition().x, 

@@ -15,8 +15,8 @@ void prepareGame();
 std::string get_GUI_Input();
 
 bool isSquare(std::string square);
-char reverseCrown(char color); //return crowned version of color ('R' or 'B')
-								//or uncrowned version ('r' or 'b')
+char reverseCrown(char color); //возвращает цвет в дамках ('R' или 'B')
+								//или обычный ('r' или 'b')
 bool cannotMakeMove();
 bool possibleMovement(sq::Square *initSq);
 
@@ -32,11 +32,11 @@ int getAddress(std::string sq);
 char getLetCoordinate(std::string sq1);
 std::string getSqInBetween(sq::Square *initSq, sq::Square *targetSq);
 char getCapDirection(std::string *initSq, std::string *targetSq);
-char getRowParity(char row); //parity is oddness or evenness
+char getRowParity(char row); //четный или нечетный ряд
 		
-//these two functions are for crowned pieces in function sq::Square getSqInBetween(...)
-	bool upCapture(sq::Square *initSq, sq::Square *targetSq); //is the capture going upward (from our view)?
-	bool downCapture(sq::Square *initSq, sq::Square *targetSq); //is the capture going downward?
+//эти две функции для дамок в функции sq::Square getSqInBetween(...)
+	bool upCapture(sq::Square *initSq, sq::Square *targetSq); //захват вверх (с нашей точки зрения)?
+	bool downCapture(sq::Square *initSq, sq::Square *targetSq); //захват вниз?
 bool R_Capture1();
 bool R_Capture2();
 bool R_Capture3();
@@ -46,16 +46,16 @@ bool B_Capture2();
 bool B_Capture3();
 bool B_Capture4();
 char oppoColor(char color);
-bool isCapture(); //is a capture occuring?
+bool isCapture(); //произойдет ли захват?
 void updateBoard();
-bool isPromotion(); //is there a promotion (to a crowned piece)?
-bool possibleCapture(sq::Square *initSq); //is a capture possible?
-void getConsecutiveJmpTarget(); //get user's target for consecutive captures
+bool isPromotion(); //фигура становится дамкой?
+bool possibleCapture(sq::Square *initSq); //возможен ли захват?
+void getConsecutiveJmpTarget(); //ввод квадрата последовательного прыжка пользователем
 bool goodConsecutiveJmpTarget(std::string sq); 
 void displayHelp();
 void redTurn();
 void blackTurn();
-bool gameOver(); //is it game over?
+bool gameOver(); //конец игры?
 void redLoses();
 void blackLoses();
 void tieGame();

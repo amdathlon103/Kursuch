@@ -10,8 +10,7 @@
 
 namespace ch {
 
-// Represents the entire checkers board and all its squares as class
-// Square.
+// Представление доски и её квадратов как класс.
 class Board {
  public:
 
@@ -21,8 +20,7 @@ class Board {
         const sf::Color &borderColor = sf::Color::Blue);
 
 
-  // Draws the class object's members: sf::RectangleSquare board and the
-  // contents of std::vector<ch::Square> squaresVect to the renderWindow.
+  // Выводит доску и квадраты(в данном случае невидимые) на экран renderWindow.
   void draw(sf::RenderWindow &renderWindow, std::vector<sq::Square> &squares_list);
 
   sf::RenderWindow* getWindow() const;
@@ -47,8 +45,6 @@ class Board {
 
   void setBorderColor(const sf::Color &newBorderColor);
 
-  // Changes the position of both sf::RectangleSquare board and the members
-  // of std::vector<ch::Square> squaresVect.
   void setPosition(const sf::Vector2f &newPosition);
 
   void setSquareColor1(const sf::Color &newColor);
@@ -62,65 +58,48 @@ class Board {
 
  private:
   
-  // The window that the board will be drawn to.
+  // Окно, на которое будет выведена доска.
   sf::RenderWindow* window;
 
-  // Makes up the large square that the board is, but without the individual
-  // 64 squares. Is drawn in Board::draw().
+  // Было фактически доской, заменено на спрайт.
   sf::RectangleShape board;
 
   
-  // Holds the minor squares of the checkers board. Those squares are
-  // each represent by type ch::Square and stored in this vector. Only
-  // contains 32 ch::Squares because it only holds the accessible squares.
-  // Contents are drawn in Board::draw(). By drawing its 32 squares, the
-  // board appears to have all 64 squares, making memory usage on 32
-  // additional squares unnecessary.
+  // Содержит квадраты доски. Их тип ch::Square и они хранятся в этом векторе.
+  // Квадратов всего 32, т.к. содержит только доступные квадраты.
+  // Рисуются неввидимыми для присутствия на экране.
   std::vector<Square> squaresVect;
   
-
-  // Color of the accessible squares, such as a1 and h8.
   sf::Color squareColor1;
 
-
-  // Color of the inaccessible squares, such as a2 and h7.
   sf::Color squareColor2;
 
 
-  // Length of each of the 64 individual squares that make up the board,
-  // NOT the length of the board itself.
+  // Длина квадратов.
   float squareLength;
 
 
-  // Used in the contructor to intialize the squareLength by dividing the
-  // boardLength by this constant, as a checkers board is 8 squares by 8
-  // squares.
+  // Используется в конструкторе для определения размера доски.
   static const int boardLengthInSquares = 8;
 
 
-  // Constructs and positions the 32 ch::Square objects and stores them
-  // all in std::vector<ch::Square> squaresVect.
+  // Создает и распределяет квадраты, хранимые в squaresVect.
   void setAccessibleSquares(const sf::Color &color,
                             const float &squareLength);
 
 
-  // Called by setAccessibleSquares() to construct the 32 ch::Square objects
-  // and place them in std::vector<ch::Square> squaresVect.
+  // Вызывается в setAccessibleSquares(), чтобы создать квадраты.
   void constructAccessibleSquares(const sf::Color &color);
 
 
-  // Called by setAccessibleSquares() to position each of the 32 ch::Square
-  // objects in std::vector<ch::Square> squaresVect.
+  // Вызывается в setAccessibleSquares(), чтобы распределить квадраты.
   void positionAccessibleSquares(const float &squareLength);
 
   
-  // Called by draw() to draw the 32 ch::Square objects in
-  // std::vector<ch::Square> squaresVect to the renderWindow.
+  // Вызывается в draw(), чтобы фактически вывести квадраты из
+  // squaresVect на renderWindow.
   void drawSquares(sf::RenderWindow &renderWindow);
 
-
-  // Called by setPosition() to adjust the positions of each of the 32
-  // ch::Square objects in std::vector<ch::Square> squaresVect.
   void adjustSquaresPositions(const sf::Vector2f &positionalChange);
 
 };

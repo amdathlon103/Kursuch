@@ -36,9 +36,6 @@
     <ClInclude Include="error.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="filler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="square.h">
       <Filter>Header Files</Filter>
     </ClInclude>
